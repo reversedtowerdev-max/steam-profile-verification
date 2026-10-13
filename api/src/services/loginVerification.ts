@@ -16,7 +16,7 @@ app.get('/api/callback', async (req, res) => {
       client_secret: clientSecret,
       grant_type: 'authorization_code',
       code,
-      redirect_uri: 'http://localhost:5173/callback',
+      redirect_uri: 'https://steam-profile-verification-web.reversedtower-dev.workers.dev/callback',
     })
   })
 
