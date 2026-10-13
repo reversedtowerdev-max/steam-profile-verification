@@ -20,7 +20,7 @@ export default {
           client_secret: env.DISCORD_CLIENT_SECRET,
           grant_type: "authorization_code",
           code,
-          redirect_uri: "http://localhost:5173/callback",
+          redirect_uri: "https://steam-profile-verification-web.reversedtower-dev.workers.dev/callback",
         }),
       });
 
