@@ -12,7 +12,7 @@ function Callback() {
 
     if (code) {
       // Send code to your backend for token exchange
-      fetch(`/api/callback?code=${code}`)
+      fetch("https://api.reversedtower-dev.workers.dev/api/callback?code=" + code)
         .then(res => res.json())
         .then(data => {
           if (data.success) {
