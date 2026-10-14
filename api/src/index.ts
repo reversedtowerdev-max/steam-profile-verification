@@ -1,3 +1,5 @@
+import verifyUserExistence from "./services/verifyUserExistence";
+
 function withCors(response: Response) {
   const headers = new Headers(response.headers);
   headers.set("Access-Control-Allow-Origin", "https://steam-profile-verification-web.reversedtower-dev.workers.dev");
@@ -23,6 +25,11 @@ export default {
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       });
+    }
+
+    if (url.pathname === "/api/verifyuser" && request.method === "POST") {
+      const response = await verifyUserExistence(request, env);
+      return withCors(response);
     }
 
     // Only handle /api/callback
