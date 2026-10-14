@@ -1,4 +1,4 @@
-import "./admin.css";
+import "./css/admin.css";
 
 function Admin() {
 

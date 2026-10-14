@@ -19,7 +19,6 @@ export default {
   async fetch(request, env, ctx): Promise<Response> {
     const url = new URL(request.url);
 
-    // Handle preflight OPTIONS request
     if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
@@ -36,14 +35,12 @@ export default {
       return await withCors(response);
     }
 
-    // Only handle /api/callback
     if (url.pathname === "/api/callback") {
       const code = url.searchParams.get("code");
       if (!code) {
         return withCors(Response.json({ success: false, error: "Missing code" }, { status: 400 }));
       }
 
-      // Exchange code for token
       const tokenResponse = await fetch("https://discord.com/api/oauth2/token", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -67,7 +64,6 @@ export default {
       return withCors(Response.json({ success: true, user: { id: user.id, username: user.username } }));
     }
 
-    // Default fallback
     return withCors(Response.json({ error: "Not found" }, { status: 404 }));
   },
 } satisfies ExportedHandler<Env>;

@@ -1,4 +1,4 @@
-import "./home.css";
+import "./css/home.css";
 import LoginButton from "../components/DiscordLoginButton";
 
 function Home() {
