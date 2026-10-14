@@ -27,6 +27,7 @@ export default {
 
     if (url.pathname === "/api/verifyuser" && request.method === "POST") {
       const { steamID } = (await request.json()) as { steamID: string };
+      console.log(env.STEAM_API_KEY)
 
       const res = await fetch(
         `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${env.STEAM_API_KEY}&steamids=${steamID}`

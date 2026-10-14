@@ -1,8 +1,0 @@
-name = "steam-profile-verification"
-main = "src/index.ts"
-compatibility_date = "2026-10-13"
-routes = ["https://steam-profile-verification-api.reversedtower-dev.workers.dev/*"]
-
-
-[site]
-bucket = "./web/public"
