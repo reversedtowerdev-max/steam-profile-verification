@@ -1,15 +1,19 @@
 import verifyUserExistence from "./services/verifyUserExistence";
 
-function withCors(response: Response) {
+export async function withCors(response: Response): Promise<Response> {
   const headers = new Headers(response.headers);
-  headers.set("Access-Control-Allow-Origin", "https://steam-profile-verification-web.reversedtower-dev.workers.dev");
+  headers.set("Access-Control-Allow-Origin", "*");
   headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  return new Response(response.body, {
+
+  const body = await response.text();
+  console.log("Returning headers:", Array.from(headers.entries()));
+  return new Response(body, {
     status: response.status,
     headers,
   });
 }
+
 
 export default {
   async fetch(request, env, ctx): Promise<Response> {
@@ -29,7 +33,7 @@ export default {
 
     if (url.pathname === "/api/verifyuser" && request.method === "POST") {
       const response = await verifyUserExistence(request, env);
-      return withCors(response);
+      return await withCors(response);
     }
 
     // Only handle /api/callback

@@ -1,9 +1,14 @@
 import { useState } from "react";
 
+type VerifyResult =
+  | { verified: true; user: { id: string; name: string; avatar: string } }
+  | { verified: false; error?: string };
+
 function SubmitSteamID() {
     const [steamID, setSteamID] = useState('');
     const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<{ verified: boolean; error?: string } | null>(null);
+    const [result, setResult] = useState<VerifyResult | null>(null);
+    
 
     async function handleSubmission() {
         if (!steamID) return;
@@ -46,7 +51,16 @@ export default function SteamIdForm() {
       {result && (
         <div>
           {result.verified ? (
-            <p style={{ color: "green" }}>✅ Profile picture verified!</p>
+            <div>
+              <p style={{ color: "green" }}>✅ Profile picture verified!</p>
+              <p><strong>Steam ID:</strong> {result.user.id}</p>
+              <p><strong>Name:</strong> {result.user.name}</p>
+              <img
+                src={result.user.avatar}
+                alt={`${result.user.name}'s avatar`}
+                style={{ width: "100px", borderRadius: "8px" }}
+              />
+            </div>
           ) : (
             <p style={{ color: "red" }}>
               ❌ Verification failed {result.error ? `(${result.error})` : ""}
