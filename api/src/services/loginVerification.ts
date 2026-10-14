@@ -1,27 +1,29 @@
-// server.js
-import express from 'express'
+export default {
+  async fetch(request, env, ctx): Promise<Response> {
+    const url = new URL(request.url);
 
-const app = express()
+    if (url.pathname === "/api/callback") {
+      const code = url.searchParams.get("code");
+      if (!code) {
+        return Response.json({ success: false, error: "Missing code" }, { status: 400 });
+      }
 
-app.get('/api/callback', async (req, res) => {
-  const code = req.query.code as string
-  const clientId = process.env.VITE_DISCORD_CLIENT_ID!;
-  const clientSecret = process.env.VITE_DISCORD_CLIENT_SECRET!;
+      const tokenResponse = await fetch("https://discord.com/api/oauth2/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          client_id: env.VITE_DISCORD_CLIENT_ID,
+          client_secret: env.DISCORD_CLIENT_SECRET,
+          grant_type: "authorization_code",
+          code,
+          redirect_uri: "https://steam-profile-verification-web.reversedtower-dev.workers.dev/callback",
+        }),
+      });
 
-  const response = await fetch('https://discord.com/api/oauth2/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: 'https://steam-profile-verification-web.reversedtower-dev.workers.dev/callback',
-    })
-  })
+      const tokens = await tokenResponse.json();
+      return Response.json(tokens);
+    }
 
-  const data = await response.json()
-  res.json(data)
-})
-
-app.listen(3000, () => console.log('Server running on http://localhost:3000'))
+    return Response.json({ error: "Not found" }, { status: 404 });
+  },
+} satisfies ExportedHandler<Env>;
