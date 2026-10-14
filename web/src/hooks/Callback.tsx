@@ -17,8 +17,10 @@ function Callback() {
         .then(data => {
           if (data.success) {
             setIsAuthenticated(true);
+            console.log("Auth set, navigating to /verify");
             navigate('/verify');
           } else {
+            console.log("Unauthorized, navigating to /unauthorized");
             navigate('/unauthorized');
           }
         });
