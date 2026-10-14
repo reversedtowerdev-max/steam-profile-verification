@@ -9,12 +9,12 @@ function SubmitSteamID() {
         if (!steamID) return;
         setLoading(true);
         try {
-            const res = await fetch('https://api.reversedtower-dev.workers.dev/api/verifyuser' {
+            const res = await fetch('https://api.reversedtower-dev.workers.dev/api/verifyuser', {
                 method: 'POST',
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ steamID}),
             });
-            
+
             const data = await res.json();
             setResult(data);    
         } catch (err) {
