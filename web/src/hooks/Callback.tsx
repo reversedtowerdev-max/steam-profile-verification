@@ -20,6 +20,9 @@ function Callback() {
       const code = params.get("code");
       const state = params.get("state");
 
+      console.log("Code exists:", !!code);
+      console.log("State exists:", !!state);
+
       if (!code || !state) {
         navigate("/unauthorized", { replace: true });
         return;

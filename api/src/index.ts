@@ -8,17 +8,24 @@ import {
   SESSION_MAX_AGE
 } from "./services/session";
 
-export async function withCors(response: Response): Promise<Response> {
-  const headers = new Headers(response.headers);
-  headers.set("Access-Control-Allow-Origin", "*");
-  headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+const FRONTEND_URL =
+  "https://steam-profile-verification-web.reversedtower-dev.workers.dev";
 
-  const body = await response.text();
-  console.log("Returning headers:", Array.from(headers.entries()));
-  return new Response(body, {
+export function withCors(response: Response): Response {
+  const headers = new Headers(response.headers);
+
+  headers.set("Access-Control-Allow-Origin", FRONTEND_URL);
+  headers.set("Access-Control-Allow-Credentials", "true");
+  headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+  headers.set("Vary", "Origin");
+
+  return new Response(response.body, {
     status: response.status,
-    headers,
+    headers
   });
 }
 
@@ -33,14 +40,9 @@ export default {
     const url = new URL(request.url);
 
     if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: {
-          "Access-Control-Allow-Origin": "https://steam-profile-verification-web.reversedtower-dev.workers.dev",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      });
+      return withCors(new Response(null, {
+        status: 204
+      }));
     }
 
     if (url.pathname === "/api/verifyuser" && request.method === "POST") {
