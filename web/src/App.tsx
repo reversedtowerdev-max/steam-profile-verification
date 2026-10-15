@@ -4,7 +4,6 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Verify from "./pages/Verify";
 import Admin from "./pages/Admin";
-import Callback from "./hooks/Callback";
 import UnAuthorized from "./pages/UnAuthorized";
 
 import SecretRoutes from "./hooks/SecretRoutes";
@@ -14,8 +13,6 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-
-      <Route path="/callback" element={<Callback />} />
 
       <Route path="/unauthorized" element={<UnAuthorized />} />
 

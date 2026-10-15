@@ -11,6 +11,11 @@ import {
 const FRONTEND_URL =
   "https://steam-profile-verification-web.reversedtower-dev.workers.dev";
 
+const API_URL =
+  "https://api.reversedtower-dev.workers.dev";
+
+const REDIRECT_URI = `${API_URL}/api/callback`;
+
 export function withCors(response: Response): Response {
   const headers = new Headers(response.headers);
 
@@ -75,44 +80,89 @@ export default {
           headers: {
             "Content-Type": "application/json",
             "Set-Cookie":
-              "session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0"
+              "session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0"
           }
         }
       ));
     }
 
-    if (url.pathname === "/api/callback" && request.method === "GET") {
-    const code = url.searchParams.get("code");
+    if (url.pathname === "/api/auth/login" && request.method === "GET") {
+      const state = crypto.randomUUID();
 
-    if (!code) {
-      return withCors(Response.json(
-        { success: false, error: "Missing code" },
-        { status: 400 }
-      ));
+      const discordUrl = new URL(
+        "https://discord.com/oauth2/authorize"
+      );
+
+      discordUrl.searchParams.set("client_id", env.DISCORD_CLIENT_ID);
+      discordUrl.searchParams.set("redirect_uri", REDIRECT_URI);
+      discordUrl.searchParams.set("response_type", "code");
+      discordUrl.searchParams.set("scope", "identify guilds");
+      discordUrl.searchParams.set("state", state);
+
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: discordUrl.toString(),
+          "Set-Cookie": [
+            `oauth_state=${state}`,
+            "HttpOnly",
+            "Secure",
+            "SameSite=Lax",
+            "Path=/api",
+            "Max-Age=600"
+          ].join("; ")
+        }
+      });
     }
 
-    const tokenResponse = await fetch(
-      "https://discord.com/api/oauth2/token",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: new URLSearchParams({
-          client_id: env.DISCORD_CLIENT_ID,
-          client_secret: env.DISCORD_CLIENT_SECRET,
-          grant_type: "authorization_code",
-          code,
-          redirect_uri: "https://steam-profile-verification-web.reversedtower-dev.workers.dev/api/callback"
-        })
-      }
-    );
+    if (url.pathname === "/api/callback" && request.method === "GET") {
+      const code = url.searchParams.get("code");
+      const state = url.searchParams.get("state");
 
-    if (!tokenResponse.ok) {
-        return withCors(Response.json(
-          { success: false, error: "Discord authentication failed" },
-          { status: 401 }
-        ));
+      const cookies = request.headers.get("Cookie") ?? "";
+
+      const savedState = cookies
+        .split(";")
+        .map(cookie => cookie.trim())
+        .find(cookie => cookie.startsWith("oauth_state="))
+        ?.slice("oauth_state=".length);
+
+      const clearStateCookie =
+        "oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/api; Max-Age=0";
+
+      if (!code || !state || !savedState || state !== savedState) {
+        return new Response("Invalid OAuth state", {
+          status: 400,
+          headers: {
+            "Set-Cookie": clearStateCookie
+          }
+        });
+      }
+
+      const tokenResponse = await fetch(
+        "https://discord.com/api/oauth2/token",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: new URLSearchParams({
+            client_id: env.DISCORD_CLIENT_ID,
+            client_secret: env.DISCORD_CLIENT_SECRET,
+            grant_type: "authorization_code",
+            code,
+            redirect_uri: REDIRECT_URI
+          })
+        }
+      );
+
+      if (!tokenResponse.ok) {
+        return new Response("Discord authentication failed", {
+          status: 401,
+          headers: {
+            "Set-Cookie": clearStateCookie
+          }
+        });
       }
 
       const tokens = await tokenResponse.json() as {
@@ -129,32 +179,42 @@ export default {
       );
 
       if (!userResponse.ok) {
-        return withCors(Response.json(
-          { success: false, error: "Failed to retrieve Discord user" },
-          { status: 502 }
-        ));
+        return new Response("Failed to retrieve Discord user", {
+          status: 502,
+          headers: {
+            "Set-Cookie": clearStateCookie
+          }
+        });
       }
 
-      const discordUser = await userResponse.json() as DiscordUser;
+      const discordUser =
+        await userResponse.json() as DiscordUser;
 
+      // Find existing user or register a new one
       const auth = await authenticateUser(discordUser);
 
+      // Create their login session
       const sessionId = await createSession(auth.user.id);
 
-      return withCors(new Response(
-        JSON.stringify({
-          success: true,
-          isNewUser: auth.isNewUser,
-          user: auth.user
-        }),
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "Set-Cookie":
-              `session=${sessionId}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_MAX_AGE}`
-          }
-        }
-      ));
+      const headers = new Headers();
+
+      headers.set("Location", `${FRONTEND_URL}/verify`);
+
+      headers.append("Set-Cookie", [
+        `session=${sessionId}`,
+        "HttpOnly",
+        "Secure",
+        "SameSite=None",
+        "Path=/",
+        `Max-Age=${SESSION_MAX_AGE}`
+      ].join("; "));
+
+      headers.append("Set-Cookie", clearStateCookie);
+
+      return new Response(null, {
+        status: 302,
+        headers
+      });
     }
 
     return withCors(Response.json({ error: "Not found" }, { status: 404 }));

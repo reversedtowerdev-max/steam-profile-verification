@@ -1,10 +1,12 @@
+const API_URL = "https://api.reversedtower-dev.workers.dev";
+
 function DiscordLoginButton() {
-  const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${
-    import.meta.env.VITE_DISCORD_CLIENT_ID
-  }&redirect_uri=${encodeURIComponent("https://steam-profile-verification-web.reversedtower-dev.workers.dev/callback")}&response_type=code&scope=identify%20guilds`;
+  function handleLogin() {
+    window.location.href = `${API_URL}/api/auth/login`;
+  }
 
   return (
-    <button onClick={() => (window.location.href = discordAuthUrl)}>
+    <button onClick={handleLogin}>
       Continue to Discord
     </button>
   );
