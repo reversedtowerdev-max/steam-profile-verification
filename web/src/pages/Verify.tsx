@@ -1,18 +1,30 @@
-import Submission from "../hooks/SubmitSteamID"
-import Reqs from "../assets/requirement.png"
-import DownReq from "../../public/requirement.jpeg"
-import "./css/verify.css"
+import { useAuth } from "../hooks/AuthContext";
 
 function Verify() {
-    return (
-        <div className="container">
-            <h1>Welcome to Egg Sherran!</h1>
-            <h3>Please change your Steam Profile to the provided image</h3>
-            <a href={DownReq} download="required.jpeg">Click here to download the required Image</a>
-            <img id="requirement" src={Reqs} alt="THis is not a loggo!" />
-            <Submission />
-        </div>
-    )
+  const { user, logout } = useAuth();
+
+  if (!user) return null;
+
+  return (
+    <div>
+      <h1>Welcome, {user.username}!</h1>
+
+      <p>Discord ID: {user.id}</p>
+
+      <p>
+        Steam ID: {user.steamID ?? "Not provided"}
+      </p>
+
+      <p>
+        Verification Status:
+        {user.verified ? " Verified" : " Not Verified"}
+      </p>
+
+      <button onClick={logout}>
+        Logout
+      </button>
+    </div>
+  );
 }
 
-export default Verify
+export default Verify;

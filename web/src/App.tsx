@@ -1,33 +1,45 @@
-import { Routes, Route } from 'react-router-dom'
-import Home from './pages/Home'
-import Verify from './pages/Verify'
-import Admin from './pages/Admin'
-import SecretRoutes from './hooks/SecretRoutes'
-import Callback from './hooks/Callback'
-import UnAuthorized from './pages/UnAuthorized'
+
+import { Routes, Route } from "react-router-dom";
+
+import Home from "./pages/Home";
+import Verify from "./pages/Verify";
+import Admin from "./pages/Admin";
+import Callback from "./hooks/Callback";
+import UnAuthorized from "./pages/UnAuthorized";
+
+import SecretRoutes from "./hooks/SecretRoutes";
+import AdminRoutes from "./hooks/AdminRoutes";
 
 function App() {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/callback" element={<Callback />} />
-        <Route path="/unauthorized" element={<UnAuthorized />} />
-        <Route path="/verify" element={
+    <Routes>
+      <Route path="/" element={<Home />} />
+
+      <Route path="/callback" element={<Callback />} />
+
+      <Route path="/unauthorized" element={<UnAuthorized />} />
+
+      <Route
+        path="/verify"
+        element={
           <SecretRoutes>
             <Verify />
           </SecretRoutes>
-        } />
-        <Route path="/admin" element={
-          <SecretRoutes>
+        }
+      />
+
+      <Route
+        path="/admin"
+        element={
+          <AdminRoutes>
             <Admin />
-          </SecretRoutes>
-        } />
-      </Routes>
-    </>
-  )
+          </AdminRoutes>
+        }
+      />
+
+      <Route path="*" element={<UnAuthorized />} />
+    </Routes>
+  );
 }
 
-// Comment out SecretRoutes when working in Local Development!
-
-export default App
+export default App;
