@@ -6,7 +6,7 @@ function DiscordLoginButton() {
   }
 
   return (
-    <button onClick={handleLogin}>
+    <button className="btn" onClick={handleLogin}>
       Continue to Discord
     </button>
   );

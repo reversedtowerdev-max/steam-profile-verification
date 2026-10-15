@@ -51,8 +51,25 @@ export default {
     }
 
     if (url.pathname === "/api/verifyuser" && request.method === "POST") {
-      const response = await verifyUserExistence(request, env);
-      return await withCors(response);
+      const user = await getSessionUser(request);
+
+      if (!user) {
+        return withCors(Response.json(
+          {
+            verified: false,
+            error: "Unauthorized"
+          },
+          { status: 401 }
+        ));
+      }
+      
+      const response = await verifyUserExistence(
+        request,
+        env,
+        user
+      );
+
+      return withCors(response);
     }
 
     if (url.pathname === "/api/auth/me" && request.method === "GET") {
@@ -198,7 +215,7 @@ export default {
 
       const headers = new Headers();
 
-      headers.set("Location", `${FRONTEND_URL}/verify`);
+      headers.set("Location", `${FRONTEND_URL}/dashboard`);
 
       headers.append("Set-Cookie", [
         `session=${sessionId}`,

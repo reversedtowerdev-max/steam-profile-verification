@@ -16,7 +16,8 @@
 	},
 	"secrets": {
 		"required": [
-			"DISCORD_CLIENT_SECRET"
+			"DISCORD_CLIENT_SECRET",
+			"STEAM_API"
 		]
 	},
 	"assets": {

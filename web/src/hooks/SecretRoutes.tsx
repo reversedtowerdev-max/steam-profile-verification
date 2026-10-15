@@ -1,20 +1,16 @@
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../hooks/AuthContext";
 
-import { Navigate } from "react-router-dom";
-import { useAuth } from "./AuthContext";
-import type { ReactNode } from "react";
-
-function SecretRoutes({ children }: { children: ReactNode }) {
-  const { isAuthenticated, loading } = useAuth();
+export default function SecretRoutes() {
+  const { user, loading } = useAuth();
 
   if (loading) {
     return <p>Checking authentication...</p>;
   }
 
-  if (!isAuthenticated) {
+  if (!user) {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 }
-
-export default SecretRoutes;
