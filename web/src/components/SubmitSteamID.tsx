@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/AuthContext";
+import { useAuth, type AuthUser } from "../hooks/AuthContext";
 
 const API_URL = "https://api.reversedtower-dev.workers.dev";
 
@@ -16,15 +16,15 @@ type VerifyResult =
   | {
       verified: true;
       user: SteamUser;
+      updatedUser: AuthUser;
     }
   | {
       verified: false;
       error?: string;
-      user?: SteamUser;
     };
 
 export default function SteamIdForm() {
-  const { user, refreshAuth } = useAuth();
+  const { user, updateUser } = useAuth();;
   const navigate = useNavigate();
 
   const [steamID, setSteamID] = useState("");
@@ -94,7 +94,7 @@ export default function SteamIdForm() {
 
       // Update React user data after successful verification
       if (data.verified) {
-        await refreshAuth();
+        updateUser(data.updatedUser);
       }
 
     } catch (error) {

@@ -51,25 +51,27 @@ export default {
     }
 
     if (url.pathname === "/api/verifyuser" && request.method === "POST") {
+      const origin = request.headers.get("Origin");
+
+      if (origin !== FRONTEND_URL) {
+        return withCors(Response.json(
+          { verified: false, error: "Forbidden" },
+          { status: 403 }
+        ));
+      }
+
       const user = await getSessionUser(request);
 
       if (!user) {
         return withCors(Response.json(
-          {
-            verified: false,
-            error: "Unauthorized"
-          },
+          { verified: false, error: "Unauthorized" },
           { status: 401 }
         ));
       }
-      
-      const response = await verifyUserExistence(
-        request,
-        env,
-        user
-      );
 
-      return withCors(response);
+      return withCors(
+        await verifyUserExistence(request, env, user)
+      );
     }
 
     if (url.pathname === "/api/auth/me" && request.method === "GET") {

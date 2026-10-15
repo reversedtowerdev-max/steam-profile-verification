@@ -195,7 +195,8 @@ export default async function verifyUserExistence(
         name: player.personaname,
         avatar: player.avatarfull,
         isEqual: equal
-      }
+      },
+      updatedUser: storedUser
     });
 
   } catch (error) {

@@ -8,11 +8,14 @@ import UnAuthorized from "./pages/UnAuthorized";
 import UserDashboard from "./pages/Dashboard";
 import SecretRoutes from "./hooks/SecretRoutes";
 import AdminRoutes from "./hooks/AdminRoutes";
+import GuestRoutes from "./hooks/GuestRoutes";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route element={<GuestRoutes />}>
+        <Route path="/" element={<Home />} />
+      </Route>
 
       <Route path="/unauthorized" element={<UnAuthorized />} />
 

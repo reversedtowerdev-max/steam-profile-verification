@@ -22,19 +22,26 @@ interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
   loading: boolean;
+
   refreshAuth: () => Promise<boolean>;
+  updateUser: (updatedUser: AuthUser) => void;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({
+  children
+}: {
+  children: ReactNode;
+}) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   async function refreshAuth(): Promise<boolean> {
     try {
       const response = await fetch(`${API_URL}/api/auth/me`, {
+        method: "GET",
         credentials: "include"
       });
 
@@ -66,14 +73,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function updateUser(updatedUser: AuthUser) {
+    setUser(current => {
+      // Never replace the current account with a different user.
+      if (!current || current.id !== updatedUser.id) {
+        return current;
+      }
+
+      return updatedUser;
+    });
+  }
+
   async function logout() {
     try {
-      await fetch(`${API_URL}/api/auth/logout`, {
+      const response = await fetch(`${API_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include"
       });
-    } finally {
+
+      if (!response.ok) {
+        throw new Error("Logout failed");
+      }
+
       setUser(null);
+    } catch (error) {
+      console.error("Logout error:", error);
+      throw error;
     }
   }
 
@@ -82,13 +107,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      isAuthenticated: user !== null,
-      loading,
-      refreshAuth,
-      logout
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: user !== null,
+        loading,
+        refreshAuth,
+        updateUser,
+        logout
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
