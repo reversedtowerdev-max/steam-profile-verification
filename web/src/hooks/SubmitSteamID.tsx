@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 type VerifyResult =
-  | { verified: true; user: { id: string; name: string; avatar: string } }
+  | { verified: true; user: { id: string; name: string; avatar: string; isEqual: boolean } }
   | { verified: false; error?: string };
 
 function SubmitSteamID() {
@@ -60,6 +60,11 @@ export default function SteamIdForm() {
                 alt={`${result.user.name}'s avatar`}
                 style={{ width: "100px", borderRadius: "8px" }}
               />
+              {result.user.isEqual ? (
+                <p>✅The user is using the required image!</p>
+              ) : (
+                <p>❌The user isn't using the required image!</p>
+              )}
             </div>
           ) : (
             <p style={{ color: "red" }}>

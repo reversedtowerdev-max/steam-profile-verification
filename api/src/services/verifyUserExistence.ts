@@ -17,12 +17,30 @@ export default async function verifyUserExistence(request: Request, env: any): P
   const players = data.response.players;
   if (players && players.length > 0) {
     const player = players[0];
+
+    // Take the requirement.png
+    const requirementRes = await env.ASSESTS.fetch("requirement.png");
+    const requirementBuffer = await requirementRes.arrayBuffer();
+    
+
+    // Implementing PROFILE COMPARISON
+    const avatarUrl = player.avatarfull;
+    const avatarRes = await fetch(avatarUrl);
+    const avatarBuffer = await avatarRes.arrayBuffer();
+
+    // Turn the avatar and requirement avatar to Hash
+    const avatarHash = await crypto.subtle.digest("SHA-256", avatarBuffer);
+    const requirementHash = await crypto.subtle.digest("SHA-256", requirementBuffer);
+
+    const equal = Buffer.from(requirementHash).toString("hex") === Buffer.from(avatarHash).toString("hex");
+
     return Response.json({
       verified: true,
       user: {
         id: player.steamid,
         name: player.personaname,
         avatar: player.avatarfull,
+        isEqual: equal
       },
     });
   } else {
