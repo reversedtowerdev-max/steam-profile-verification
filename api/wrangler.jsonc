@@ -11,6 +11,10 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
+	"assets": {
+		"binding": "ASSETS",
+		"directory": "./public"
+	},
 	"kv_namespaces": [
 		{
 			"binding": "USER_KV",

@@ -23,6 +23,7 @@
     "workerd@1.20261006.1": true
   },
   "dependencies": {
-    "image-hash": "^7.0.1"
+    "image-hash": "^7.0.1",
+    "imagescript": "^3.0.0"
   }
 }
