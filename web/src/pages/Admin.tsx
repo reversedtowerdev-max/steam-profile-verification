@@ -1,4 +1,3 @@
-import "./css/admin.css";
 
 function Admin() {
 
