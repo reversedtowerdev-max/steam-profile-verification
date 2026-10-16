@@ -17,8 +17,12 @@
 	"secrets": {
 		"required": [
 			"DISCORD_CLIENT_SECRET",
-			"STEAM_API"
+			"STEAM_API",
+			"DISCORD_WEBHOOK_URL"
 		]
+	},
+	"triggers": {
+		"crons": ["0 23 * *"]
 	},
 	"assets": {
 		"binding": "ASSETS",

@@ -1,6 +1,7 @@
 import verifyUserExistence from "./services/verifyUserExistence";
 import { KVAdd, KVGet, KVRemove, KVList } from "./services/kvservics"
 import { authenticateUser, type DiscordUser } from "./services/auth";
+import { runDailyVerification } from "./services/dailySteamProfileVerification";
 import {
   createSession,
   getSessionUser,
@@ -238,4 +239,9 @@ export default {
 
     return withCors(Response.json({ error: "Not found" }, { status: 404 }));
   },
+
+  async scheduled(controller, env, ctx): Promise<void> {
+    console.log("Triggered by:", controller.cron);
+    await runDailyVerification(env);
+  }
 } satisfies ExportedHandler<Env>;

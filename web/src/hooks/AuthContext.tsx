@@ -75,7 +75,6 @@ export function AuthProvider({
 
   function updateUser(updatedUser: AuthUser) {
     setUser(current => {
-      // Never replace the current account with a different user.
       if (!current || current.id !== updatedUser.id) {
         return current;
       }

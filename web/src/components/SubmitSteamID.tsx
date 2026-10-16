@@ -60,7 +60,6 @@ export default function SteamIdForm() {
       const response = await fetch(`${API_URL}/api/verifyuser`, {
         method: "POST",
 
-        // Send authenticated session cookie
         credentials: "include",
 
         headers: {
@@ -92,7 +91,6 @@ export default function SteamIdForm() {
 
       setResult(data);
 
-      // Update React user data after successful verification
       if (data.verified) {
         updateUser(data.updatedUser);
       }
